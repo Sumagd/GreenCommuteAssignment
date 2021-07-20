@@ -13,7 +13,13 @@ export abstract class BaseEyes {
   }
 
   seesIdVisible(id: string) {
-    cy.get(`#${id}`).should('be.visible');
+    cy.get(`#${id}`).should('be.visible')
+    return this;
+  }
+
+  seeClassVisible(classname:string)
+  {
+    cy.get(`.${classname}`).should('be.visible')
     return this;
   }
 
@@ -27,12 +33,30 @@ export abstract class BaseEyes {
     return this;
   }
 
+  seesTextWithClassForMultiAlerts(dom:string)
+  {
+    cy.get(`.${dom}`).then(function(text){
+
+      var multiText=text.text()
+      if(multiText==='Job already present in saved jobs.')
+      {
+        expect(multiText).equal('Job already present in saved jobs.')
+      }
+      else{
+
+        expect(multiText).equal('Job saved for future reference.')
+      }
+      
+      return this;
+    })
+  }
+
   seesDomVisibleWithCustomMatcher(domlabel: string, matcher: string) {
     cy.get(`[${domlabel}=${matcher}]`).should('be.visible');
     return this;
   }
 
-  seesDomVisible(domlabel: string){
+  seesDomVisible(domlabel: string){                                  //element is enabled or disabled
     cy.get(domlabel).should('be.visible');
     return this;
   }
@@ -45,6 +69,7 @@ export abstract class BaseEyes {
   seesTextWithClassAndIndex(domClass: string, index: number, text: string) {
     cy.get(`.${domClass}`)
       .eq(index)
+      .wait(5000)
       .should('have.text', text);
     return this;
   }
@@ -135,6 +160,15 @@ export abstract class BaseEyes {
   }
 }
 
+
+
+
+
+
+
+
+
+
 export class BaseHands {
   clickOnId(id: string) {
     cy.get(`#${id}`).click();
@@ -160,6 +194,31 @@ export class BaseHands {
     return this;
   }
 
+  clickOnDomElementWithIndex(dom:string,index:number)
+  {
+    cy.get(dom).eq(index).click();
+    return this;
+  }
+
+
+  checkTheDomElement(dom:string,index:number)
+  {
+      cy.get(`${dom}`).eq(index).check();
+      return this;
+  }
+
+  clickOnCSSTypeWithindex(dom:string,index:number)
+  {
+    cy.get(`${dom}`).eq(index).click();
+      return this;
+  }
+
+  clickOnChildDomWithIndexAndCSS(parentCSS:string,commonchildCSS:string,index:number)
+  {
+    cy.get(`${parentCSS},${commonchildCSS}`).eq(index).click();
+    return this;
+  }
+
   typeTextonDom(locatorName: string, locatorValue: string, text: string) {
     cy.get(`[${locatorName}="${locatorValue}"]`).type(text, { force: true });
     return this;
@@ -173,14 +232,22 @@ export class BaseHands {
   clickOnChildDom(parentId: string, dom: string, index: number) {
     cy.get(`#${parentId} ${dom}`)
       .eq(index)
-      .click();
+      .wait(6000)
+      .click({force:true});
     return this;
   }
 
+  
   ClickOnTextWithClassAndIndex(domClass: string, index: number) {
     cy.get(`[class=${domClass}]`)
       .eq(index)
+      
       .click();
+    return this;
+  }
+  clickOnElementUsingMultiSelectors(text1:string,index:number,text2:string)
+  {
+    cy.get(`${text1},${text2}`).eq(index).wait(4000).invoke('show').click({force:true});
     return this;
   }
 
@@ -189,6 +256,19 @@ export class BaseHands {
     return this;
   }
 
+  dropDownWithoutSelectTag(id:string,text:string)
+  {
+      cy.get(`#${id}`).type(`${text}{downarrow}{enter}`);
+      return this;
+  }
+
+  
+
+  dropDownWithoutSelect(classname:string,tagName:string,text:string)
+  {
+      cy.get(`#${classname}`).find(`${tagName}`).contains(`${text}`).invoke('show').click();
+      return this;
+  }
   clickOnAgGridRow(rowId: string) {
     cy.get(`[row-id=${rowId}]`)
       .find('.ag-selection-checkbox')
@@ -199,6 +279,11 @@ export class BaseHands {
   wait(milliSecs: number) {
     cy.wait(milliSecs);
     return this;
+  }
+
+  forceClick()
+  {
+    cy.click({force:true})
   }
 }
 
